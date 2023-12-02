@@ -36,30 +36,11 @@ public class Main extends Application {
         var object = new ClassWithCONSTAnnotationsOnField();
         var descriptors = ClassWithCONSTAnnotatedFieldsToArrayListOfCONSTFieldDescriptors.convert(object);
 
-        System.out.println(descriptors);
-
-//        var comboBox = new ComboBox<>(FXCollections.observableList(descriptors));
-//        comboBox.setConverter(new StringConverter<>() {
-//            @Override
-//            public String toString(CONSTFieldDescriptor object) {
-//                System.out.println(object);
-//                return object.title();
-//            }
-//
-//            @Override
-//            public CONSTFieldDescriptor fromString(String string) {
-//                return descriptors.stream()
-//                        .filter(constFieldDescriptor -> constFieldDescriptor.title().equals(string))
-//                        .findAny()
-//                        .orElse(null);
-//            }
-//        });
-
         var componentWrapper = new HBox();
         var comboBox = new ComboBox<>(FXCollections.observableList(descriptors.stream().map(CONSTFieldDescriptor::title).toList()));
         comboBox.setOnAction(event -> {
             var title = comboBox.getValue();
-            Optional<? extends Class<? extends Node>> optionalComponentClass = descriptors.stream()
+            var optionalComponentClass = descriptors.stream()
                     .filter(constFieldDescriptor -> constFieldDescriptor.title().equals(title))
                     .map(CONSTFieldDescriptor::clazz)
                     .findFirst();
