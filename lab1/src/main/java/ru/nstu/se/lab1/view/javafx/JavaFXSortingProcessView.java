@@ -1,16 +1,18 @@
 package ru.nstu.se.lab1.view.javafx;
 
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.util.Duration;
 import ru.nstu.se.lab1.view.SortingProcessView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane implements SortingProcessView<T> {
     private final ArrayViewElementSizingStrategy<T> sizingStrategy;
@@ -70,6 +72,9 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
     @Override
     public void compare(int leftBlockIterator, int rightBlockIterator) {
         System.out.format("void compare(int leftBlockIterator = %d, int rightBlockIterator = %d);\n", leftBlockIterator, rightBlockIterator);
+        resetStyle();
+        leftBlock.highlightElement(leftBlockIterator);
+        rightBlock.highlightElement(rightBlockIterator);
     }
 
     @Override
@@ -80,7 +85,24 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
                 leftBlock.toString(),
                 leftBlockIterator
         );
+        resetStyle();
+
         this.leftBlockList.set(leftBlockIterator, array.get(arrayIterator));
+
+        var translateTransition = new TranslateTransition(Duration.seconds(0.3), this.data.getChildren().get(arrayIterator));
+        var leftBlockElement = this.leftBlock.getChildren().get(leftBlockIterator);
+        var leftBlockElementBounds = leftBlockElement.localToScene(leftBlockElement.getBoundsInLocal());
+
+        var arrayElement = this.data.getChildren().get(arrayIterator);
+        var arrayElementBounds = arrayElement.localToScene(arrayElement.getBoundsInLocal());
+
+        translateTransition.setToX(leftBlockElementBounds.getCenterX() - arrayElementBounds.getCenterX());
+        translateTransition.setToY(leftBlockElementBounds.getCenterY() - arrayElementBounds.getCenterY());
+        System.out.println("X=" + (leftBlockElementBounds.getCenterX() - arrayElementBounds.getCenterX()));
+        System.out.println("Y=" + (leftBlockElementBounds.getCenterY() - arrayElementBounds.getCenterY()));
+        translateTransition.play();
+
+//        this.leftBlockList.set(leftBlockIterator, array.get(arrayIterator));
     }
 
     @Override
@@ -91,6 +113,7 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
                 rightBlock.toString(),
                 rightBlockIterator
         );
+        resetStyle();
         this.rightBlockList.set(rightBlockIterator, array.get(arrayIterator));
     }
 
@@ -102,6 +125,7 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
                 array.toString(),
                 arrayIterator
         );
+        resetStyle();
         this.dataList.set(arrayIterator, leftBlock.get(leftBlockIterator));
     }
 
@@ -113,6 +137,13 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
                 array.toString(),
                 arrayIterator
         );
+        resetStyle();
         this.dataList.set(arrayIterator, rightBlock.get(rightBlockIterator));
+    }
+
+    private void resetStyle() {
+        this.data.update();
+        this.leftBlock.update();
+        this.rightBlock.update();
     }
 }

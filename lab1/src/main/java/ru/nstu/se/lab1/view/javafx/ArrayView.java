@@ -7,8 +7,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -74,6 +72,7 @@ public class ArrayView<T extends Comparable<T>> extends VBox {
                     .toList());
         }
     }
-
-
+    public void highlightElement(int index) {
+        ((TextField) getChildren().get(index)).setStyle("-fx-background-color: green;");
+    }
 }

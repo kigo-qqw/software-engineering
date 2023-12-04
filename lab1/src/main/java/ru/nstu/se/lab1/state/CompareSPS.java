@@ -19,7 +19,7 @@ public class CompareSPS<T extends Comparable<T>> extends SortingProcessState<T> 
         var rightBlockIterator = mergeLoopStateDto.getRightBlockIterator();
         var k = mergeLoopStateDto.getK();
 
-        getSortingProcessView().compare(leftBlockIterator, rightBlockIterator);
+        getSortingProcessView().compare(k + leftBlockIterator, k + rightBlockIterator);
 
         if (leftBlock.get(k + leftBlockIterator).compareTo(rightBlock.get(k + rightBlockIterator)) < 0) {
             return new MoveFromLeftBlockSPS<>(getSortingProcessView(), mergeLoopStateDto);
