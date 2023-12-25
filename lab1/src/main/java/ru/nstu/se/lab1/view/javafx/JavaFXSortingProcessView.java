@@ -3,9 +3,7 @@ package ru.nstu.se.lab1.view.javafx;
 import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -39,7 +37,7 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
 
         setAlignment(Pos.CENTER);
 
-        setGridLinesVisible(true); // DEBUG
+//        setGridLinesVisible(true); // DEBUG
 
         this.dataList = FXCollections.observableArrayList();
         this.leftBlockList = FXCollections.observableArrayList();
@@ -70,80 +68,78 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
     }
 
     @Override
-    public void compare(int leftBlockIterator, int rightBlockIterator) {
-        System.out.format("void compare(int leftBlockIterator = %d, int rightBlockIterator = %d);\n", leftBlockIterator, rightBlockIterator);
+    public void compare(int leftBlockIterator, int rightBlockIterator, boolean isLeft) {
         resetStyle();
-        leftBlock.highlightElement(leftBlockIterator);
-        rightBlock.highlightElement(rightBlockIterator);
+        if (isLeft) {
+            leftBlock.highlightElementGreen(leftBlockIterator);
+            rightBlock.highlightElementYellow(rightBlockIterator);
+        } else {
+            leftBlock.highlightElementYellow(leftBlockIterator);
+            rightBlock.highlightElementGreen(rightBlockIterator);
+        }
     }
 
     @Override
     public void moveFromArrayToLeftBlock(ArrayList<T> array, int arrayIterator, ArrayList<T> leftBlock, int leftBlockIterator) {
-        System.out.format("void moveFromArrayToLeftBlock(ArrayList<T> array = %s, int arrayIterator = %d, ArrayList<T> leftBlock = %s, int leftBlockIterator = %d);\n",
-                array.toString(),
-                arrayIterator,
-                leftBlock.toString(),
-                leftBlockIterator
-        );
         resetStyle();
-
         this.leftBlockList.set(leftBlockIterator, array.get(arrayIterator));
-
-        var translateTransition = new TranslateTransition(Duration.seconds(0.3), this.data.getChildren().get(arrayIterator));
-        var leftBlockElement = this.leftBlock.getChildren().get(leftBlockIterator);
-        var leftBlockElementBounds = leftBlockElement.localToScene(leftBlockElement.getBoundsInLocal());
-
-        var arrayElement = this.data.getChildren().get(arrayIterator);
-        var arrayElementBounds = arrayElement.localToScene(arrayElement.getBoundsInLocal());
-
-        translateTransition.setToX(leftBlockElementBounds.getCenterX() - arrayElementBounds.getCenterX());
-        translateTransition.setToY(leftBlockElementBounds.getCenterY() - arrayElementBounds.getCenterY());
-        System.out.println("X=" + (leftBlockElementBounds.getCenterX() - arrayElementBounds.getCenterX()));
-        System.out.println("Y=" + (leftBlockElementBounds.getCenterY() - arrayElementBounds.getCenterY()));
-        translateTransition.play();
-
-//        this.leftBlockList.set(leftBlockIterator, array.get(arrayIterator));
+        moveElementToElement(this.data, arrayIterator, this.leftBlock, leftBlockIterator);
     }
 
     @Override
     public void moveFromArrayToRightBlock(ArrayList<T> array, int arrayIterator, ArrayList<T> rightBlock, int rightBlockIterator) {
-        System.out.format("void moveFromArrayToRightBlock(ArrayList<T> array = %s, int arrayIterator = %d, ArrayList<T> rightBlock = %s, int rightBlockIterator = %d);\n",
-                array.toString(),
-                arrayIterator,
-                rightBlock.toString(),
-                rightBlockIterator
-        );
         resetStyle();
         this.rightBlockList.set(rightBlockIterator, array.get(arrayIterator));
+        moveElementToElement(this.data, arrayIterator, this.rightBlock, rightBlockIterator);
     }
 
     @Override
     public void moveFromLeftBlockToArray(ArrayList<T> leftBlock, int leftBlockIterator, ArrayList<T> array, int arrayIterator) {
-        System.out.format("void moveFromLeftBlockToArray(ArrayList<T> leftBlock = %s, int leftBlockIterator = %d, ArrayList<T> array = %s, int arrayIterator = %d);\n",
-                leftBlock.toString(),
-                leftBlockIterator,
-                array.toString(),
-                arrayIterator
-        );
         resetStyle();
         this.dataList.set(arrayIterator, leftBlock.get(leftBlockIterator));
+        moveElementToElement(this.leftBlock, leftBlockIterator, this.data, arrayIterator);
     }
 
     @Override
     public void moveFromRightBlockToArray(ArrayList<T> rightBlock, int rightBlockIterator, ArrayList<T> array, int arrayIterator) {
-        System.out.format("void moveFromRightBlockToArray(ArrayList<T> rightBlock = %s, int rightBlockIterator = %d, ArrayList<T> array = %s, int arrayIterator = %d);\n",
-                rightBlock.toString(),
-                rightBlockIterator,
-                array.toString(),
-                arrayIterator
-        );
         resetStyle();
         this.dataList.set(arrayIterator, rightBlock.get(rightBlockIterator));
+        moveElementToElement(this.rightBlock, rightBlockIterator, this.data, arrayIterator);
     }
 
     private void resetStyle() {
         this.data.update();
         this.leftBlock.update();
         this.rightBlock.update();
+    }
+
+    private void moveElementToElement(ArrayView<T> fromContainer, int fromIterator, ArrayView<T> toContainer, int toIterator) {
+        fromContainer.highlightElementBlue(fromIterator);
+        toContainer.highlightElementBlue(toIterator);
+
+        final var fromContainerBounds = fromContainer.localToScene(fromContainer.getBoundsInLocal());
+        final var toContainerBounds = toContainer.localToScene(toContainer.getBoundsInLocal());
+
+        final var from = (TextField) fromContainer.getChildren().get(fromIterator);
+        final var to = (TextField) toContainer.getChildren().get(toIterator);
+
+        final var fromX = fromContainerBounds.getMinX();
+        final var fromY = fromContainerBounds.getMinY() + fromIterator * (fromContainerBounds.getHeight() / fromContainer.getChildren().size());
+        final var toX = toContainerBounds.getMinX();
+        final var toY = toContainerBounds.getMinY() + toIterator * (toContainerBounds.getHeight() / toContainer.getChildren().size());
+
+        to.maxWidthProperty().bind(from.widthProperty());
+
+        final var translateTransition = new TranslateTransition();
+
+        translateTransition.setDuration(Duration.seconds(0.3));
+        translateTransition.setNode(to);
+
+        translateTransition.setFromX(fromX - toX);
+        translateTransition.setFromY(fromY - toY);
+        translateTransition.setToX(0);
+        translateTransition.setToY(0);
+
+        translateTransition.play();
     }
 }

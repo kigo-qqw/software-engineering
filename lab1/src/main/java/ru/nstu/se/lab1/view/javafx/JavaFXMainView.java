@@ -1,8 +1,8 @@
 package ru.nstu.se.lab1.view.javafx;
 
-import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import ru.nstu.se.lab1.controller.MainController;
 import ru.nstu.se.lab1.view.MainView;
 
@@ -15,12 +15,18 @@ public class JavaFXMainView<T extends Comparable<T>> extends BorderPane implemen
 
         setCenter(this.sortingProcessView);
 
-        // FIXME: delete after check
-        var start = new Button("start");
-        start.setOnAction(event -> {
+        final var generateData = new Button("generate data");
+        generateData.setOnAction(event -> {
+            this.mainController.generateRandomData();
+        });
+
+        final var step = new Button("step");
+        step.setOnAction(event -> {
             this.mainController.sortStep();
         });
-        setLeft(start);
+
+        final var container=new HBox(generateData, step);
+        setTop(container);
     }
 
     public void setMainController(MainController<T> mainController) {

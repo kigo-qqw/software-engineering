@@ -1,6 +1,5 @@
 package ru.nstu.se.lab1.state;
 
-import javafx.application.Platform;
 import ru.nstu.se.lab1.state.dto.MergeLoopStateDto;
 import ru.nstu.se.lab1.view.SortingProcessView;
 
@@ -23,13 +22,11 @@ public class MoveFromRightBlockSPS<T extends Comparable<T>> extends SortingProce
 
         array.set(iterator, rightBlock.get(k + rightBlockIterator));
 
-//        Platform.runLater(() -> {
-            getSortingProcessView().moveFromRightBlockToArray(
-                    rightBlock,
-                    k + rightBlockIterator,
-                    array,
-                    iterator);
-//        });
+        getSortingProcessView().moveFromRightBlockToArray(
+                rightBlock,
+                k + rightBlockIterator,
+                array,
+                iterator);
 
         var newMergeLoopStateDto = new MergeLoopStateDto<>(
                 mergeLoopStateDto.getGlobalStateDto(),

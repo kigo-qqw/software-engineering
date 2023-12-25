@@ -9,7 +9,7 @@ public interface SortingProcessView<T extends Comparable<T>> extends View {
 
     void setRightBlock(ArrayList<T> rightBlock);
 
-    void compare(int leftBlockIterator, int rightBlockIterator);
+    void compare(int leftBlockIterator, int rightBlockIterator, boolean isLeft);
 
     void moveFromArrayToLeftBlock(ArrayList<T> array, int arrayIterator, ArrayList<T> leftBlock, int leftBlockIterator);
 

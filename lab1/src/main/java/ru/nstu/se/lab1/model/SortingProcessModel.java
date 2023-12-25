@@ -6,5 +6,6 @@ import java.util.ArrayList;
 
 public interface SortingProcessModel<T extends Comparable<T>> extends Model {
     void setData(ArrayList<T> data);
+
     SortingProcessState<T> nextStep();
 }

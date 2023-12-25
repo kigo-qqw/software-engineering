@@ -9,8 +9,8 @@ import ru.nstu.se.lab1.view.SortingProcessView;
 import java.util.ArrayList;
 
 public class SortingProcessOfIterativeMergeSortControllerImpl<T extends Comparable<T>> implements SortingProcessOfIterativeMergeSortController<T> {
-    private SortingProcessView<T> sortingProcessView;
-    private SortingProcessOfIterativeMergeSortModel<T> model;
+    private final SortingProcessView<T> sortingProcessView;
+    private final SortingProcessOfIterativeMergeSortModel<T> model;
 
     public SortingProcessOfIterativeMergeSortControllerImpl(
             SortingProcessView<T> sortingProcessView,
@@ -22,17 +22,14 @@ public class SortingProcessOfIterativeMergeSortControllerImpl<T extends Comparab
 
     @Override
     public void setData(ArrayList<T> data) {
-        System.out.println("void setData();");
         this.model.setData(data);
         this.sortingProcessView.setData(data);
     }
 
     @Override
     public void autoSort() {
-        System.out.println("void autoSort();");
         SortingProcessState<T> state = this.model.nextStep();
         while (!(state instanceof FinishSPS<T>)) {
-            System.out.println("state = " + state);
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -44,6 +41,6 @@ public class SortingProcessOfIterativeMergeSortControllerImpl<T extends Comparab
 
     @Override
     public void nextStep() {
-        SortingProcessState<T> state = this.model.nextStep();
+        var ignore = this.model.nextStep();
     }
 }

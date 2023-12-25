@@ -21,19 +21,12 @@ public class ArrayView<T extends Comparable<T>> extends VBox {
     }
 
     void setData(ObservableList<T> data) {
-        System.out.println("setData");
         this.data = data;
-
         this.data.addListener((ListChangeListener<T>) c -> update());
-
         Platform.runLater(this::update);
-        System.out.println("after update");
-        System.out.println(data);
     }
 
     void update() {
-        System.out.println("void update();");
-
         getChildren().clear();
 
         Optional<T> maxElementOptional = this.data.stream().filter(Objects::nonNull).max(T::compareTo);
@@ -51,13 +44,9 @@ public class ArrayView<T extends Comparable<T>> extends VBox {
 
             getChildren().addAll(this.data.stream()
                     .map(t -> {
-                        System.out.println(t);
+                        TextField textField = new TextField(t != null ? t.toString() : "");
 
-                        String text = "";
-                        if (t != null)
-                            text = t.toString();
-
-                        TextField textField = new TextField(text);
+                        if (t == null) textField.setVisible(false);
 
                         textField.maxWidthProperty().bind(
                                 widthProperty()
@@ -72,7 +61,14 @@ public class ArrayView<T extends Comparable<T>> extends VBox {
                     .toList());
         }
     }
-    public void highlightElement(int index) {
-        ((TextField) getChildren().get(index)).setStyle("-fx-background-color: green;");
+
+    public void highlightElementYellow(int index) {
+        getChildren().get(index).setStyle("-fx-background-color: yellow;");
+    }
+    public void highlightElementGreen(int index) {
+        getChildren().get(index).setStyle("-fx-background-color: green;");
+    }
+    public void highlightElementBlue(int index) {
+        getChildren().get(index).setStyle("-fx-background-color: blue;");
     }
 }
