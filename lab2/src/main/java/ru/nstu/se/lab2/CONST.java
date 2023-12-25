@@ -1,7 +1,5 @@
 package ru.nstu.se.lab2;
 
-import javafx.scene.Node;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,5 +12,5 @@ public @interface CONST {
 
     String group();
 
-    Class<? extends Node> clazz();
+    Class<?> clazz();
 }

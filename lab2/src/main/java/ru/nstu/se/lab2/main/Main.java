@@ -8,7 +8,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import ru.nstu.se.lab2.CONST;
 import ru.nstu.se.lab2.CONSTFieldDescriptor;
 import ru.nstu.se.lab2.ClassWithCONSTAnnotatedFieldsToArrayListOfCONSTFieldDescriptors;
@@ -17,8 +16,6 @@ import ru.nstu.se.lab2.components.LabelWithText_B;
 import ru.nstu.se.lab2.components.LabelWithText_C;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Objects;
-import java.util.Optional;
 
 public class Main extends Application {
     class ClassWithCONSTAnnotationsOnField {
@@ -46,7 +43,7 @@ public class Main extends Application {
                     .findFirst();
             if (optionalComponentClass.isPresent()) {
                 try {
-                    componentWrapper.getChildren().setAll(optionalComponentClass.get().getDeclaredConstructor().newInstance());
+                    componentWrapper.getChildren().setAll((Node) optionalComponentClass.get().getDeclaredConstructor().newInstance());
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                          NoSuchMethodException e) {
                     throw new RuntimeException(e);
