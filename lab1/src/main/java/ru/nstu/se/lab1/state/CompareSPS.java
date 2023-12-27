@@ -21,6 +21,8 @@ public class CompareSPS<T extends Comparable<T>> extends SortingProcessState<T> 
 
         boolean compareResult = leftBlock.get(k + leftBlockIterator).compareTo(rightBlock.get(k + rightBlockIterator)) < 0;
 
+        getSortingProcessView().clearGroupBorders();
+        getSortingProcessView().drawGroupBorders(mergeLoopStateDto.getIterator(), k, mergeLoopStateDto.getGlobalStateDto().getGroupSize());
         getSortingProcessView().compare(k + leftBlockIterator, k + rightBlockIterator, compareResult);
 
         if (compareResult) {

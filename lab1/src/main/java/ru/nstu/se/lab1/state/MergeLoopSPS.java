@@ -22,6 +22,8 @@ public class MergeLoopSPS<T extends Comparable<T>> extends SortingProcessState<T
         var rightBlockIterator = mergeLoopStateDto.getRightBlockIterator();
         var k = mergeLoopStateDto.getK();
 
+        getSortingProcessView().clearGroupBorders();
+        getSortingProcessView().drawGroupBorders(mergeLoopStateDto.getIterator(), k, mergeLoopStateDto.getGlobalStateDto().getGroupSize());
         if (mergeLoopStateDto.getIterator() >= mergeLoopStateDto.getGlobalStateDto().getArray().size()) {
             mergeLoopStateDto.getGlobalStateDto().setGroupSize(mergeLoopStateDto.getGlobalStateDto().getGroupSize() * 2);
             return new MainLoopSPS<>(getSortingProcessView(), new MainLoopStateDto<>(mergeLoopStateDto.getGlobalStateDto()));
@@ -35,7 +37,9 @@ public class MergeLoopSPS<T extends Comparable<T>> extends SortingProcessState<T
             k = mergeLoopStateDto.getK();
             leftBlockIterator = 0;
             rightBlockIterator = 0;
-        }
+
+            getSortingProcessView().clearGroupBorders();
+            getSortingProcessView().drawGroupBorders(mergeLoopStateDto.getIterator(), k, mergeLoopStateDto.getGlobalStateDto().getGroupSize());        }
 
         if (leftBlockIterator == groupSize || k + leftBlockIterator == leftBlockSize) {
             return new MoveFromRightBlockSPS<>(getSortingProcessView(), mergeLoopStateDto);

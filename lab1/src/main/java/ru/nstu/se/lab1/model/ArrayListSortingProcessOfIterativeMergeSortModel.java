@@ -40,6 +40,5 @@ public class ArrayListSortingProcessOfIterativeMergeSortModel<T extends Comparab
                 0
         );
         this.currentState = null;  // reset state
-        System.out.println(this.globalStateDto.getArray());
     }
 }

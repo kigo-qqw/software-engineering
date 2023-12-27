@@ -9,6 +9,10 @@ public interface SortingProcessView<T extends Comparable<T>> extends View {
 
     void setRightBlock(ArrayList<T> rightBlock);
 
+    void drawGroupBorders(int iter, int k, int s);
+
+    void clearGroupBorders();
+
     void compare(int leftBlockIterator, int rightBlockIterator, boolean isLeft);
 
     void moveFromArrayToLeftBlock(ArrayList<T> array, int arrayIterator, ArrayList<T> leftBlock, int leftBlockIterator);

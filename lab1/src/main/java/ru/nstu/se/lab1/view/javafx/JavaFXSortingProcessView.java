@@ -5,12 +5,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import ru.nstu.se.lab1.view.SortingProcessView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane implements SortingProcessView<T> {
     private final ArrayViewElementSizingStrategy<T> sizingStrategy;
@@ -20,6 +23,9 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
     private final ArrayView<T> data;
     private final ArrayView<T> leftBlock;
     private final ArrayView<T> rightBlock;
+    private Rectangle arrayBlockBorder;
+    private Rectangle leftBlockBorder;
+    private Rectangle rightBlockBorder;
 
     public JavaFXSortingProcessView(ArrayViewElementSizingStrategy<T> sizingStrategy) {
         this.sizingStrategy = sizingStrategy;
@@ -65,6 +71,44 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
     @Override
     public void setRightBlock(ArrayList<T> rightBlock) {
         this.rightBlockList.setAll(rightBlock);
+    }
+
+    @Override
+    public void drawGroupBorders(int iter, int k, int s) {
+        iter = (iter / (2 * s)) * 2 * s;
+        if (dataList.size() > iter) {
+            final var blockBounds = data.localToScene(data.getBoundsInLocal());
+            final var actualGroupSize = dataList.size() > iter + 2 * s ? 2 * s : dataList.size() - iter;
+            var y = iter * 24 + data.getBoundsInParent().getMinY() + 24;
+            arrayBlockBorder = new Rectangle(blockBounds.getMinX(), y, blockBounds.getWidth() - 2, actualGroupSize * 24 - 1);
+            arrayBlockBorder.setStyle("-fx-fill: transparent; -fx-stroke: black; -fx-stroke-width: 2;");
+            ((BorderPane) getParent()).getChildren().add(this.arrayBlockBorder);
+        }
+        this.leftBlockBorder = createBorder(k, s, this.leftBlock, this.leftBlockList);
+        add(this.leftBlockBorder, 1, 0);
+        this.rightBlockBorder = createBorder(k, s, this.rightBlock, this.rightBlockList);
+        add(this.rightBlockBorder, 1, 1);
+    }
+
+    private Rectangle createBorder(int k, int s, ArrayView<T> block, List<T> data) {
+        if (data.size() > k) {
+            final var blockBounds = block.localToScene(block.getBoundsInLocal());
+            final var actualGroupSize = data.size() > k + s ? s : data.size() - k;
+            var yl = -(data.size() - actualGroupSize) * 24 / 2 + k * 24;
+            var border = new Rectangle(blockBounds.getMinX(), yl, blockBounds.getWidth() - 2, actualGroupSize * 24 - 1);
+            border.setStyle("-fx-fill: transparent; -fx-stroke: black; -fx-stroke-width: 2;");
+            border.setTranslateY(yl);
+            return border;
+        }
+        return new Rectangle();
+    }
+
+    @Override
+    public void clearGroupBorders() {
+        resetStyle();
+        ((BorderPane) getParent()).getChildren().remove(this.arrayBlockBorder);
+        getChildren().remove(this.leftBlockBorder);
+        getChildren().remove(this.rightBlockBorder);
     }
 
     @Override

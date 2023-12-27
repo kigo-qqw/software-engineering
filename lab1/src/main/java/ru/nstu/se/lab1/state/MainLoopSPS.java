@@ -22,6 +22,8 @@ public class MainLoopSPS<T extends Comparable<T>> extends SortingProcessState<T>
         globalStateDto.setLeftBlockSize(nn / 2 * globalStateDto.getGroupSize());
         globalStateDto.setRightBlockSize(globalStateDto.getArray().size() - globalStateDto.getLeftBlockSize());
 
+        getSortingProcessView().clearGroupBorders();
+
         if (globalStateDto.getLeftBlockSize() <= 0 || globalStateDto.getRightBlockSize() <= 0)
             return new FinishSPS<>(getSortingProcessView());
 
