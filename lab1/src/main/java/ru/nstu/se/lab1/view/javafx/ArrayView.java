@@ -5,12 +5,13 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class ArrayView<T extends Comparable<T>> extends VBox {
+public class ArrayView<T extends Comparable<T>> extends HBox {
     private ObservableList<T> data;
     private final ArrayViewElementSizingStrategy<T> sizingStrategy;
 
@@ -48,13 +49,14 @@ public class ArrayView<T extends Comparable<T>> extends VBox {
 
                         if (t == null) textField.setVisible(false);
 
-                        textField.maxWidthProperty().bind(
-                                widthProperty()
-                                        .subtract(minimalSize)
-                                        .divide(sizeRange)
-                                        .multiply((t != null ? sizingStrategy.getSize(t) : 0) - minElementSize)
-                                        .add(minimalSize)
-                        );
+//                        textField.maxWidthProperty().bind(
+//                                widthProperty()
+//                                        .subtract(minimalSize)
+//                                        .divide(sizeRange)
+//                                        .multiply((t != null ? sizingStrategy.getSize(t) : 0) - minElementSize)
+//                                        .add(minimalSize)
+//                        );
+                        textField.setMaxWidth(40);
                         textField.setEditable(false);
                         return textField;
                     })
@@ -65,9 +67,11 @@ public class ArrayView<T extends Comparable<T>> extends VBox {
     public void highlightElementYellow(int index) {
         getChildren().get(index).setStyle("-fx-background-color: yellow;");
     }
+
     public void highlightElementGreen(int index) {
         getChildren().get(index).setStyle("-fx-background-color: green;");
     }
+
     public void highlightElementBlue(int index) {
         getChildren().get(index).setStyle("-fx-background-color: blue;");
     }

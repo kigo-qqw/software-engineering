@@ -76,14 +76,16 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
     @Override
     public void drawGroupBorders(int iter, int k, int s) {
         iter = (iter / (2 * s)) * 2 * s;
-        if (dataList.size() > iter) {
-            final var blockBounds = data.localToScene(data.getBoundsInLocal());
-            final var actualGroupSize = dataList.size() > iter + 2 * s ? 2 * s : dataList.size() - iter;
-            var y = iter * 24 + data.getBoundsInParent().getMinY() + 24;
-            arrayBlockBorder = new Rectangle(blockBounds.getMinX(), y, blockBounds.getWidth() - 2, actualGroupSize * 24 - 1);
-            arrayBlockBorder.setStyle("-fx-fill: transparent; -fx-stroke: black; -fx-stroke-width: 2;");
-            ((BorderPane) getParent()).getChildren().add(this.arrayBlockBorder);
-        }
+//        if (dataList.size() > iter) {
+//            final var blockBounds = data.localToScene(data.getBoundsInLocal());
+//            final var actualGroupSize = dataList.size() > iter + 2 * s ? 2 * s : dataList.size() - iter;
+//            var y = iter * 24 + data.getBoundsInParent().getMinY() + 24;
+//            arrayBlockBorder = new Rectangle(blockBounds.getMinX(), y, blockBounds.getWidth() - 2, actualGroupSize * 24 - 1);
+//            arrayBlockBorder.setStyle("-fx-fill: transparent; -fx-stroke: black; -fx-stroke-width: 2;");
+//            ((BorderPane) getParent()).getChildren().add(this.arrayBlockBorder);
+//        }
+        this.arrayBlockBorder = createBorder(iter, 2 * s, this.data, this.dataList);
+        add(this.arrayBlockBorder, 0, 0);
         this.leftBlockBorder = createBorder(k, s, this.leftBlock, this.leftBlockList);
         add(this.leftBlockBorder, 1, 0);
         this.rightBlockBorder = createBorder(k, s, this.rightBlock, this.rightBlockList);
@@ -91,13 +93,24 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
     }
 
     private Rectangle createBorder(int k, int s, ArrayView<T> block, List<T> data) {
+//        if (data.size() > k) {
+////            final var blockBounds = block.localToScene(block.getBoundsInLocal());
+////            final var actualGroupSize = data.size() > k + s ? s : data.size() - k;
+////            var yl = -(data.size() - actualGroupSize) * 24 / 2 + k * 24;
+////            var border = new Rectangle(blockBounds.getMinX(), yl, blockBounds.getWidth() - 2, actualGroupSize * 24 - 1);
+////            border.setStyle("-fx-fill: transparent; -fx-stroke: black; -fx-stroke-width: 2;");
+////            border.setTranslateY(yl);
+////            return border;
+////        }
+////        return new Rectangle();
+
         if (data.size() > k) {
             final var blockBounds = block.localToScene(block.getBoundsInLocal());
             final var actualGroupSize = data.size() > k + s ? s : data.size() - k;
-            var yl = -(data.size() - actualGroupSize) * 24 / 2 + k * 24;
-            var border = new Rectangle(blockBounds.getMinX(), yl, blockBounds.getWidth() - 2, actualGroupSize * 24 - 1);
+//            var yl = -(data.size() - actualGroupSize) * 24 / 2 + k * 24;
+            var border = new Rectangle(blockBounds.getMinX() + k * 40, blockBounds.getMinY(), 40 * actualGroupSize - 2, 24 - 1);
             border.setStyle("-fx-fill: transparent; -fx-stroke: black; -fx-stroke-width: 2;");
-            border.setTranslateY(yl);
+            border.setTranslateX(k * 40);
             return border;
         }
         return new Rectangle();
@@ -106,7 +119,8 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
     @Override
     public void clearGroupBorders() {
         resetStyle();
-        ((BorderPane) getParent()).getChildren().remove(this.arrayBlockBorder);
+//        ((BorderPane) getParent()).getChildren().remove(this.arrayBlockBorder);
+        getChildren().remove(this.arrayBlockBorder);
         getChildren().remove(this.leftBlockBorder);
         getChildren().remove(this.rightBlockBorder);
     }
@@ -167,12 +181,17 @@ public class JavaFXSortingProcessView<T extends Comparable<T>> extends GridPane 
         final var from = (TextField) fromContainer.getChildren().get(fromIterator);
         final var to = (TextField) toContainer.getChildren().get(toIterator);
 
-        final var fromX = fromContainerBounds.getMinX();
-        final var fromY = fromContainerBounds.getMinY() + fromIterator * (fromContainerBounds.getHeight() / fromContainer.getChildren().size());
-        final var toX = toContainerBounds.getMinX();
-        final var toY = toContainerBounds.getMinY() + toIterator * (toContainerBounds.getHeight() / toContainer.getChildren().size());
+//        final var fromX = fromContainerBounds.getMinX();
+//        final var fromY = fromContainerBounds.getMinY() + fromIterator * (fromContainerBounds.getHeight() / fromContainer.getChildren().size());
+//        final var toX = toContainerBounds.getMinX();
+//        final var toY = toContainerBounds.getMinY() + toIterator * (toContainerBounds.getHeight() / toContainer.getChildren().size());
 
-        to.maxWidthProperty().bind(from.widthProperty());
+        final var fromX = fromContainerBounds.getMinX() + fromIterator * (fromContainerBounds.getWidth() / fromContainer.getChildren().size());
+        final var fromY = fromContainerBounds.getMinY();
+        final var toX = toContainerBounds.getMinX() + toIterator * (toContainerBounds.getWidth() / toContainer.getChildren().size());
+        final var toY = toContainerBounds.getMinY();
+
+//        to.maxWidthProperty().bind(from.widthProperty());
 
         final var translateTransition = new TranslateTransition();
 
