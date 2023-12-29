@@ -3,6 +3,10 @@ package ru.nstu.se.lab3;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class RadialChart extends JPanel {
     private final int width;
@@ -11,7 +15,10 @@ public class RadialChart extends JPanel {
     private int N;
     private final double length;
     private final Point center;
-
+    private List<PeriodicDataProvider> dataProviders = null;
+    private long periodMilliseconds = -1;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture<?> future;
 
     public RadialChart(int width, int height, List<RadialChartDataRow> radialChartData) {
         this.width = width;
@@ -25,6 +32,14 @@ public class RadialChart extends JPanel {
 
         setBounds(0, 0, this.width, this.height);
         setBackground(Color.lightGray);
+    }
+
+    public RadialChart(int width, int height, List<RadialChartDataRow> radialChartData, List<PeriodicDataProvider> dataProviders, long periodMilliseconds) {
+        this(width, height, radialChartData);
+        this.dataProviders = dataProviders;
+        assert this.dataProviders.size() == this.radialChartData.size();
+
+        this.periodMilliseconds = periodMilliseconds;
     }
 
     @Override
@@ -52,18 +67,18 @@ public class RadialChart extends JPanel {
 
             // draw lines
             for (int dataRowIndex = 0; dataRowIndex < this.radialChartData.size(); dataRowIndex++) {
-                var prevPoint = calculatePoint(this.radialChartData.get(dataRowIndex).getData().size() - 1, dataRowIndex);
+                var prevPoint = calculatePoint(this.radialChartData.get(dataRowIndex).data().size() - 1, dataRowIndex);
                 for (int i = 0; i < this.N; i++) {
                     Point currentPoint;
-                    if (i < this.radialChartData.get(dataRowIndex).getData().size()) {
+                    if (i < this.radialChartData.get(dataRowIndex).data().size()) {
                         currentPoint = calculatePoint(i, dataRowIndex);
                         var g2 = (Graphics2D) g;
                         g2.setStroke(new BasicStroke(2));
-                        g.setColor(this.radialChartData.get(dataRowIndex).getColor());
+                        g.setColor(this.radialChartData.get(dataRowIndex).color());
                         g.drawLine(prevPoint.x, prevPoint.y, currentPoint.x, currentPoint.y);
                         prevPoint = currentPoint;
                     } else {
-                        currentPoint = calculatePoint(this.radialChartData.get(dataRowIndex).getData().size() - 1, dataRowIndex);
+                        currentPoint = calculatePoint(this.radialChartData.get(dataRowIndex).data().size() - 1, dataRowIndex);
                         g.drawLine(prevPoint.x, prevPoint.y, currentPoint.x, currentPoint.y);
                     }
                 }
@@ -72,13 +87,13 @@ public class RadialChart extends JPanel {
             // draw marks
             for (int dataRowIndex = 0; dataRowIndex < this.radialChartData.size(); dataRowIndex++) {
                 for (int i = 0; i < this.N; i++) {
-                    if (i < this.radialChartData.get(dataRowIndex).getData().size()) {
+                    if (i < this.radialChartData.get(dataRowIndex).data().size()) {
                         var g2 = (Graphics2D) g;
                         Point currentPoint = calculatePoint(i, dataRowIndex);
-                        if (this.radialChartData.get(dataRowIndex).getData().get(i) > 2 * this.radialChartData.get(dataRowIndex).getNorm()) {
-                            drawTriangle(g2, currentPoint, this.radialChartData.get(dataRowIndex).getColor());
+                        if (this.radialChartData.get(dataRowIndex).data().get(i) > 2 * this.radialChartData.get(dataRowIndex).norm()) {
+                            drawTriangle(g2, currentPoint, this.radialChartData.get(dataRowIndex).color());
                         } else {
-                            drawCircle(g2, currentPoint, this.radialChartData.get(dataRowIndex).getColor());
+                            drawCircle(g2, currentPoint, this.radialChartData.get(dataRowIndex).color());
                         }
                     }
                 }
@@ -86,10 +101,40 @@ public class RadialChart extends JPanel {
         }
     }
 
+    public void addData(int dataRowIndex, double value) {
+        synchronized (this.radialChartData) {
+            this.radialChartData.get(dataRowIndex).data().add(value);
+            update();
+        }
+    }
+
+    public List<RadialChartDataRow> getRadialChartData() {
+        return this.radialChartData;
+    }
+
+    public void startPeriodicDataAcquisition() {
+        if (this.periodMilliseconds > 0) {
+            this.future = this.scheduler.scheduleAtFixedRate(() -> {
+                        for (int i = 0; i < this.dataProviders.size(); i++) {
+                            addData(i, this.dataProviders.get(i).getData());
+                        }
+                    },
+                    periodMilliseconds,
+                    periodMilliseconds,
+                    TimeUnit.MILLISECONDS);
+        }
+    }
+
+    public void cancelPeriodicDataAcquisition() {
+        if (this.future != null) {
+            this.future.cancel(false);
+        }
+    }
+
     private Point calculatePoint(int index, int dataRowIndex) {
         synchronized (this.radialChartData) {
-            double value = this.radialChartData.get(dataRowIndex).getData().get(index);
-            double norm = this.radialChartData.get(dataRowIndex).getNorm();
+            double value = this.radialChartData.get(dataRowIndex).data().get(index);
+            double norm = this.radialChartData.get(dataRowIndex).norm();
             if (value > 2 * norm)
                 value = 2 * norm;
             return calculatePoint(index, this.length / 2 * value / norm);
@@ -108,11 +153,10 @@ public class RadialChart extends JPanel {
         repaint();
     }
 
-
     private void updateData() {
         synchronized (this.radialChartData) {
             this.N = this.radialChartData.stream()
-                    .map(radialChartDataRow -> radialChartDataRow.getData().size())
+                    .map(radialChartDataRow -> radialChartDataRow.data().size())
                     .max(Integer::compare)
                     .orElse(0);
         }
